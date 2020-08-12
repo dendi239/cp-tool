@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fmt::Display;
 use std::path::PathBuf;
@@ -39,20 +40,29 @@ enum Command {
     Submit(Submission),
 }
 
-struct EjudgeClient {
+struct EjudgeLoginClient {
     client: reqwest::Client,
 }
 
-impl EjudgeClient {
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "type")]
+enum Config {
+    Ejudge {
+        contest_url: String,
+        session_id: String,
+    },
+}
+
+impl EjudgeLoginClient {
     fn new() -> Result<Self, Box<dyn Error>> {
         let client = reqwest::Client::builder().cookie_store(true).build()?;
-        Ok(EjudgeClient { client: client })
+        Ok(EjudgeLoginClient { client: client })
     }
 
     async fn login(
         self,
         credentials: &Credentials,
-    ) -> Result<FullClient, Box<dyn std::error::Error>> {
+    ) -> Result<EjudgeClient, Box<dyn std::error::Error>> {
         let login_url = url::Url::parse_with_params(
             &credentials.base_url,
             &[
@@ -65,6 +75,7 @@ impl EjudgeClient {
 
         let logged_in_response = self.client.post(login_url).send().await?;
         println!("Login status : {}", logged_in_response.status());
+        println!("Logged in  url : {}", logged_in_response.url());
 
         let (_, sid_value) = logged_in_response
             .url()
@@ -72,7 +83,7 @@ impl EjudgeClient {
             .find(|(k, _)| k == "SID")
             .ok_or(EjudgeErrors::MissingSessionId)?;
 
-        Ok(FullClient {
+        Ok(EjudgeClient {
             base_url: url::Url::parse(&credentials.base_url)?,
             session_id: sid_value.to_string(),
             client: self.client,
@@ -80,16 +91,36 @@ impl EjudgeClient {
     }
 }
 
-struct FullClient {
+struct EjudgeClient {
     session_id: String,
     base_url: url::Url,
     client: reqwest::Client,
 }
 
-impl FullClient {
-    // TODO: Scan directories for config
-    fn from_env() -> Option<FullClient> {
-        None
+impl EjudgeClient {
+    fn from_config(config: Config) -> Result<EjudgeClient, Box<dyn Error>> {
+        match config {
+            Config::Ejudge {
+                contest_url: contest_url,
+                session_id: session_id,
+            } => Ok(EjudgeClient {
+                session_id: session_id.clone(),
+                base_url: url::Url::parse(&contest_url)?,
+                client: reqwest::Client::builder().cookie_store(true).build()?,
+            }),
+            _ => Err(Box::new(EjudgeErrors::MissingConfig)),
+        }
+    }
+
+    fn from_env() -> Result<EjudgeClient, Box<dyn Error>> {
+        let current_direcrtory = std::env::current_dir()?;
+        let curr_dir = current_direcrtory.as_path();
+        std::iter::successors(Some(curr_dir), |&x| x.parent())
+            .filter_map(|path| std::fs::read(path.join(".cp-tool.config")).ok())
+            .filter_map(|file| serde_json::from_slice(&file).ok())
+            .filter_map(|config| EjudgeClient::from_config(config).ok())
+            .next()
+            .ok_or(Box::new(EjudgeErrors::MissingConfig))
     }
 
     async fn submit(&self, submission: &Submission) -> Result<(), Box<dyn Error>> {
@@ -112,20 +143,32 @@ impl FullClient {
         Ok(())
     }
 
-    fn save_config(&self, path: PathBuf) {
-        // TODO: Put config into file
+    fn save_config(&self, path: PathBuf) -> std::io::Result<()> {
+        let file_path = path.clone().join(".cp-tool.config");
+
+        let config_string = serde_json::to_string_pretty(&Config::Ejudge {
+            contest_url: self.base_url.clone().into_string(),
+            session_id: self.session_id.clone(),
+        })?;
+
+        println!("filepath to save is: {:?}", file_path);
+        println!("Stored config is: {}", config_string);
+
+        std::fs::write(file_path, config_string)
     }
 }
 
 #[derive(Debug)]
 enum EjudgeErrors {
     MissingConfig,
+    MismatchConfig,
     MissingSessionId,
 }
 
 impl Display for EjudgeErrors {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            EjudgeErrors::MismatchConfig => write!(f, "config type is differ"),
             EjudgeErrors::MissingConfig => write!(f, "suitable config for ejudge not found"),
             EjudgeErrors::MissingSessionId => {
                 write!(f, "missing session_id token in redirected url")
@@ -140,15 +183,12 @@ impl Error for EjudgeErrors {}
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match Command::from_args() {
         Command::Login(credentials) => {
-            EjudgeClient::new()?.login(&credentials).await?;
-            // TODO: Save config there.
+            EjudgeLoginClient::new()?
+                .login(&credentials)
+                .await?
+                .save_config(std::env::current_dir()?)?;
         }
-        Command::Submit(submission) => {
-            FullClient::from_env()
-                .ok_or(EjudgeErrors::MissingConfig)?
-                .submit(&submission)
-                .await?;
-        }
+        Command::Submit(submission) => EjudgeClient::from_env()?.submit(&submission).await?,
     };
 
     Ok(())
