@@ -1,11 +1,8 @@
-extern crate rpassword;
-
 use crate::client;
 use crate::errors;
 
 use client::EjudgeClient;
-use errors::EjudgeErrors;
-use errors::Result;
+use errors::{EjudgeErrors, Result};
 use std::io::Write;
 use structopt::StructOpt;
 
@@ -37,8 +34,6 @@ impl EjudgeCredentials {
         std::io::stdin().read_line(&mut user)?;
 
         let pass = rpassword::prompt_password_stdout("password: ")?;
-        println!("Your password is {}", pass);
-
         Ok(EjudgeCredentials {
             username: String::from(user.trim()),
             password: pass,
