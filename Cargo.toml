@@ -17,3 +17,4 @@ tokio = { version = "0.2", features = ["full"] }
 reqwest = { version = "0.10.7", features = ["json", "cookies"] }
 structopt = { version = "0.3", features = [ "paw" ] }
 rpassword = "5.0"
+thiserror = "1.0"

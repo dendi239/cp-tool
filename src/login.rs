@@ -2,7 +2,7 @@ use crate::client;
 use crate::errors;
 
 use client::EjudgeClient;
-use errors::{EjudgeErrors, Result};
+use errors::Result;
 use std::io::Write;
 use structopt::StructOpt;
 
@@ -74,7 +74,7 @@ impl EjudgeLoginClient {
             .url()
             .query_pairs()
             .find(|(k, _)| k == "SID")
-            .ok_or(EjudgeErrors::MissingSessionId)?;
+            .ok_or(errors::Error::MissingSessionId)?;
 
         Ok(EjudgeClient {
             base_url: url::Url::parse(&contest_info.base_url)?,

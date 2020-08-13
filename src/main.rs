@@ -3,6 +3,7 @@ mod errors;
 mod login;
 mod submit;
 
+use errors::Result;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -15,7 +16,7 @@ enum Command {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<()> {
     match Command::from_args() {
         Command::Login(contest_info) => {
             login::read_login(&contest_info)
