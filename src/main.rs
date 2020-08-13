@@ -8,7 +8,7 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 enum Command {
     #[structopt(name = "login", about = "logs you in specified contest.")]
-    Login(login::Credentials),
+    Login(login::ContestInfo),
 
     #[structopt(name = "submit", about = "Submits FILE to given PROBLEM.")]
     Submit(submit::Submission),
@@ -17,9 +17,8 @@ enum Command {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match Command::from_args() {
-        Command::Login(credentials) => {
-            login::EjudgeLoginClient::new()?
-                .login(&credentials)
+        Command::Login(contest_info) => {
+            login::read_login(&contest_info)
                 .await?
                 .save_config(std::env::current_dir()?)?;
         }
