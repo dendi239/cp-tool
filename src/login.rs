@@ -1,24 +1,50 @@
+extern crate rpassword;
+
 use crate::client;
 use crate::errors;
 
 use client::EjudgeClient;
 use errors::EjudgeErrors;
-use std::error::Error;
+use errors::Result;
+use std::io::Write;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-pub struct Credentials {
+pub struct ContestInfo {
     #[structopt(long = "url")]
     base_url: String,
 
     #[structopt(short = "id", long)]
     contest_id: String,
+}
 
-    #[structopt(long)]
+struct EjudgeCredentials {
     username: String,
-
-    #[structopt(long)]
     password: String,
+}
+
+pub async fn read_login(contest_info: &ContestInfo) -> Result<EjudgeClient> {
+    EjudgeLoginClient::new()?
+        .login(contest_info, &EjudgeCredentials::read()?)
+        .await
+}
+
+impl EjudgeCredentials {
+    fn read() -> Result<EjudgeCredentials> {
+        print!("username: ");
+        std::io::stdout().flush()?;
+        let mut user = String::new();
+        std::io::stdin().read_line(&mut user)?;
+        user.pop();
+
+        let pass = rpassword::prompt_password_stdout("password: ")?;
+        println!("Your password is {}", pass);
+
+        Ok(EjudgeCredentials {
+            username: user,
+            password: pass,
+        })
+    }
 }
 
 pub struct EjudgeLoginClient {
@@ -26,19 +52,20 @@ pub struct EjudgeLoginClient {
 }
 
 impl EjudgeLoginClient {
-    pub fn new() -> Result<Self, Box<dyn Error>> {
+    pub fn new() -> Result<Self> {
         let client = reqwest::Client::builder().cookie_store(true).build()?;
         Ok(EjudgeLoginClient { client: client })
     }
 
-    pub async fn login(
+    async fn login(
         self,
-        credentials: &Credentials,
-    ) -> Result<EjudgeClient, Box<dyn std::error::Error>> {
+        contest_info: &ContestInfo,
+        credentials: &EjudgeCredentials,
+    ) -> Result<EjudgeClient> {
         let login_url = url::Url::parse_with_params(
-            &credentials.base_url,
+            &contest_info.base_url,
             &[
-                ("contest_id", &credentials.contest_id as &str),
+                ("contest_id", &contest_info.contest_id as &str),
                 ("login", &credentials.username),
                 ("password", &credentials.password),
                 ("action_2", "Log in"),
@@ -56,7 +83,7 @@ impl EjudgeLoginClient {
             .ok_or(EjudgeErrors::MissingSessionId)?;
 
         Ok(EjudgeClient {
-            base_url: url::Url::parse(&credentials.base_url)?,
+            base_url: url::Url::parse(&contest_info.base_url)?,
             session_id: sid_value.to_string(),
             client: self.client,
         })
