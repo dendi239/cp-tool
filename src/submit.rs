@@ -35,7 +35,8 @@ impl EjudgeClient {
             .send()
             .await?;
 
-        println!("Submit response status: {}", submit_response.status());
+        // TODO: Check if session_id is valid.
+        //       There're must be sid as query parameter in response
         println!("Submit response url: {}", submit_response.url());
 
         Ok(())
