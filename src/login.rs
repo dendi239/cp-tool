@@ -35,13 +35,12 @@ impl EjudgeCredentials {
         std::io::stdout().flush()?;
         let mut user = String::new();
         std::io::stdin().read_line(&mut user)?;
-        user.pop();
 
         let pass = rpassword::prompt_password_stdout("password: ")?;
         println!("Your password is {}", pass);
 
         Ok(EjudgeCredentials {
-            username: user,
+            username: String::from(user.trim()),
             password: pass,
         })
     }
