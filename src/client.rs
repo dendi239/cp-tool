@@ -1,6 +1,5 @@
 use crate::errors;
 
-use errors::EjudgeErrors;
 use errors::Result;
 use serde::{Deserialize, Serialize};
 
@@ -41,7 +40,7 @@ impl EjudgeClient {
             .filter_map(|file| serde_json::from_slice(&file).ok())
             .filter_map(|config| EjudgeClient::from_config(config).ok())
             .next()
-            .ok_or(Box::new(EjudgeErrors::MissingConfig))
+            .ok_or(errors::Error::MissingConfig)
     }
 
     pub fn save_config(&self, path: std::path::PathBuf) -> std::io::Result<()> {
