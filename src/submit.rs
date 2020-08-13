@@ -14,7 +14,7 @@ pub struct Submission {
     #[structopt(short, long, default_value = "3")]
     lang_id: String,
 
-    #[structopt(long, parse(from_os_str))]
+    #[structopt(parse(from_os_str))]
     file: PathBuf,
 }
 
@@ -36,6 +36,8 @@ impl EjudgeClient {
             .await?;
 
         println!("Submit response status: {}", submit_response.status());
+        println!("Submit response url: {}", submit_response.url());
+
         Ok(())
     }
 }
