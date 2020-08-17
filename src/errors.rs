@@ -8,6 +8,9 @@ pub enum Error {
     #[error("missing session id")]
     MissingSessionId,
 
+    #[error("missing problem id")]
+    MissingProblemId,
+
     #[error(transparent)]
     UrlParseError(#[from] url::ParseError),
 
