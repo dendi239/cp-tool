@@ -19,3 +19,4 @@ structopt = { version = "0.3", features = [ "paw" ] }
 rpassword = "5.0"
 thiserror = "1.0"
 open = "1"
+async-trait = "0.1.38"

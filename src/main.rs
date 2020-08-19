@@ -1,8 +1,9 @@
 mod client;
+mod ejudge;
 mod errors;
 mod login;
-mod submit;
 
+use client::Client;
 use errors::Result;
 use structopt::StructOpt;
 
@@ -12,19 +13,19 @@ enum Command {
     Login(login::ContestInfo),
 
     #[structopt(name = "submit", about = "Submits FILE to given PROBLEM.")]
-    Submit(submit::Submission),
+    Submit(client::Submission),
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
     match Command::from_args() {
         Command::Login(contest_info) => {
-            login::read_login(&contest_info)
+            ejudge::read_login(&contest_info)
                 .await?
                 .save_config(std::env::current_dir()?)?;
         }
         Command::Submit(submission) => {
-            client::EjudgeClient::from_env()?
+            ejudge::EjudgeClient::from_env()?
                 .submit(&submission)
                 .await?
         }

@@ -18,6 +18,9 @@ pub enum Error {
     IoError(#[from] std::io::Error),
 
     #[error(transparent)]
+    ConfigSerializingError(#[from] serde_json::error::Error),
+
+    #[error(transparent)]
     NetworkError(#[from] reqwest::Error),
 }
 
