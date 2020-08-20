@@ -4,7 +4,7 @@ use crate::login;
 
 use async_trait::async_trait;
 use client::{ConfigClient, Submission, SubmitClient};
-use errors::Result;
+use errors::{Error, Result};
 use login::UserpassCredentials;
 use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
@@ -12,16 +12,16 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 pub struct UrlContestIDInfo {
     #[structopt(long = "url")]
-    pub base_url: String,
+    base_url: String,
 
     #[structopt(short = "id", long)]
-    pub contest_id: String,
+    contest_id: String,
 }
 
 pub struct EjudgeClient {
-    pub session_id: String,
-    pub base_url: url::Url,
-    pub client: reqwest::Client,
+    session_id: String,
+    base_url: url::Url,
+    client: reqwest::Client,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -63,7 +63,7 @@ impl EjudgeLoginClient {
             .url()
             .query_pairs()
             .find(|(k, _)| k == "SID")
-            .ok_or(errors::Error::MissingSessionId)?;
+            .ok_or(Error::MissingSessionId)?;
 
         Ok(EjudgeClient {
             base_url: url::Url::parse(&contest_info.base_url)?,
