@@ -3,14 +3,19 @@ use crate::errors;
 use crate::login;
 
 use async_trait::async_trait;
-use client::{Client, Config, Submission};
+use client::{Client, Submission};
 use errors::Result;
-use login::{ContestInfo, EjudgeCredentials};
+use login::UserpassCredentials;
+use serde::{Deserialize, Serialize};
+use structopt::StructOpt;
 
-pub async fn read_login(contest_info: &ContestInfo) -> Result<EjudgeClient> {
-    EjudgeLoginClient::new()?
-        .login(contest_info, &EjudgeCredentials::read()?)
-        .await
+#[derive(Debug, StructOpt)]
+pub struct UrlContestIDInfo {
+    #[structopt(long = "url")]
+    pub base_url: String,
+
+    #[structopt(short = "id", long)]
+    pub contest_id: String,
 }
 
 pub struct EjudgeClient {
@@ -19,20 +24,26 @@ pub struct EjudgeClient {
     pub client: reqwest::Client,
 }
 
-pub struct EjudgeLoginClient {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Config {
+    contest_url: String,
+    session_id: String,
+}
+
+struct EjudgeLoginClient {
     client: reqwest::Client,
 }
 
 impl EjudgeLoginClient {
-    pub fn new() -> Result<Self> {
+    fn new() -> Result<Self> {
         let client = reqwest::Client::builder().cookie_store(true).build()?;
         Ok(EjudgeLoginClient { client: client })
     }
 
     async fn login(
         self,
-        contest_info: &ContestInfo,
-        credentials: &EjudgeCredentials,
+        contest_info: &UrlContestIDInfo,
+        credentials: &UserpassCredentials,
     ) -> Result<EjudgeClient> {
         let login_url = url::Url::parse_with_params(
             &contest_info.base_url,
@@ -62,34 +73,29 @@ impl EjudgeLoginClient {
     }
 }
 
+pub async fn read_login(contest_info: &UrlContestIDInfo) -> Result<EjudgeClient> {
+    EjudgeLoginClient::new()?
+        .login(contest_info, &login::UserpassCredentials::read()?)
+        .await
+}
+
 #[async_trait]
 impl Client for EjudgeClient {
+    type Config = Config;
+
     fn from_config(config: Config) -> Result<EjudgeClient> {
-        match config {
-            Config::Ejudge {
-                contest_url,
-                session_id,
-            } => Ok(EjudgeClient {
-                session_id: session_id.clone(),
-                base_url: url::Url::parse(&contest_url)?,
-                client: reqwest::Client::builder().cookie_store(true).build()?,
-            }),
-        }
+        Ok(EjudgeClient {
+            session_id: config.session_id.clone(),
+            base_url: url::Url::parse(&config.contest_url)?,
+            client: reqwest::Client::builder().cookie_store(true).build()?,
+        })
     }
 
-    fn save_config(&self, path: std::path::PathBuf) -> Result<()> {
-        let file_path = path.clone().join(".cp-tool.config");
-
-        let config_string = serde_json::to_string_pretty(&Config::Ejudge {
+    fn get_config(&self) -> Config {
+        Config {
             contest_url: self.base_url.clone().into_string(),
             session_id: self.session_id.clone(),
-        })?;
-
-        println!("filepath to save is: {:?}", file_path);
-        println!("Stored config is: {}", config_string);
-
-        std::fs::write(file_path, config_string)?;
-        Ok(())
+        }
     }
 
     async fn submit(&self, submission: &Submission) -> Result<()> {
