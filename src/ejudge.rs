@@ -102,12 +102,12 @@ impl ConfigClient for EjudgeClient {
 #[async_trait]
 impl SubmitClient for EjudgeClient {
     async fn submit(&self, submission: &Submission) -> Result<()> {
-        let pid = &client::get_problem_id(submission)?;
+        let pid = submission.get_problem_id()?;
 
         let submit_data: [(&str, &str); 5] = [
-            ("prob_id", pid),
+            ("prob_id", &pid),
             ("lang_id", &submission.lang_id),
-            ("file", &std::fs::read_to_string(&submission.file)?),
+            ("file", &submission.get_source()?),
             ("SID", &self.session_id),
             ("action_40", "Send!"),
         ];

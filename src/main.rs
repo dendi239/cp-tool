@@ -18,20 +18,19 @@ enum Command {
     Submit(client::Submission),
 }
 
-// TODO: Update all necessary code to support any judge system, not only Ejudge one
-fn from_config(config: ClientConfig) -> Result<Box<dyn SubmitClient>> {
-    Ok(Box::new(match config {
-        ClientConfig::Ejudge(config) => ejudge::EjudgeClient::from_config(config),
-        // TODO: add additional judge systems here
-    }?))
-}
-
 // TODO: Return client just built or something.
 async fn read_login(contest_info: &ContestInfo, into_path: &PathBuf) -> Result<()> {
     match contest_info {
         ContestInfo::Ejudge(info) => ejudge::read_login(info).await?.save_config(&into_path),
         // TODO: add additional judge systems here
     }
+}
+
+fn from_config(config: ClientConfig) -> Result<Box<dyn SubmitClient>> {
+    Ok(Box::new(match config {
+        ClientConfig::Ejudge(config) => ejudge::EjudgeClient::from_config(config),
+        // TODO: add additional judge systems here
+    }?))
 }
 
 /// Finds config in enviroment: scans all parent directories until config'd be found.

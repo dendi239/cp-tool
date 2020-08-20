@@ -8,13 +8,38 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 pub struct Submission {
     #[structopt(short, long)]
-    pub problem_id: Option<String>,
+    problem_id: Option<String>,
 
     #[structopt(short, long, default_value = "3")]
     pub lang_id: String,
 
     #[structopt(parse(from_os_str))]
-    pub file: PathBuf,
+    file: PathBuf,
+}
+
+#[async_trait]
+pub trait SubmitClient {
+    // TODO: Replace () with any sutable data associated with submission
+    async fn submit(&self, submission: &Submission) -> Result<()>;
+}
+
+impl Submission {
+    pub fn get_source(&self) -> Result<String> {
+        Ok(std::fs::read_to_string(&self.file)?)
+    }
+
+    pub fn get_problem_id(&self) -> Result<String> {
+        if let Some(pid) = &self.problem_id {
+            Ok(pid.clone())
+        } else {
+            [&std::env::current_dir()?, &self.file]
+                .iter()
+                .filter_map(|path| path.file_stem())
+                .filter_map(|name| get_problem_id_from_filename(&name))
+                .next()
+                .ok_or(Error::MissingProblemId)
+        }
+    }
 }
 
 fn get_problem_id_from_filename(name: &std::ffi::OsStr) -> Option<String> {
@@ -31,23 +56,4 @@ fn get_problem_id_from_filename(name: &std::ffi::OsStr) -> Option<String> {
     } else {
         None
     }
-}
-
-pub fn get_problem_id(submission: &Submission) -> Result<String> {
-    if let Some(pid) = &submission.problem_id {
-        Ok(pid.clone())
-    } else {
-        [&std::env::current_dir()?, &submission.file]
-            .iter()
-            .filter_map(|path| path.file_stem())
-            .filter_map(|name| get_problem_id_from_filename(&name))
-            .next()
-            .ok_or(Error::MissingProblemId)
-    }
-}
-
-#[async_trait]
-pub trait SubmitClient {
-    // TODO: Replace () with any sutable data associated with submission
-    async fn submit(&self, submission: &Submission) -> Result<()>;
 }
