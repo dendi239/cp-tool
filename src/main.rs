@@ -19,7 +19,7 @@ enum Command {
 }
 
 // TODO: Return client just built or something.
-async fn read_login(contest_info: &ContestInfo, into_path: &PathBuf) -> Result<()> {
+async fn save_login(contest_info: &ContestInfo, into_path: &PathBuf) -> Result<()> {
     match contest_info {
         ContestInfo::Ejudge(info) => ejudge::read_login(info).await?.save_config(&into_path),
         // TODO: add additional judge systems here
@@ -50,7 +50,7 @@ fn from_env(current_direcrtory: &PathBuf) -> Result<Box<dyn SubmitClient>> {
 async fn main() -> Result<()> {
     let current_path = std::env::current_dir()?;
     match Command::from_args() {
-        Command::Login(info) => read_login(&info, &current_path).await,
+        Command::Login(info) => save_login(&info, &current_path).await,
         Command::Submit(submission) => from_env(&current_path)?.submit(&submission).await,
     }
 }
