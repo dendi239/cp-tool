@@ -22,14 +22,14 @@ pub struct Submission {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ClientConfig {
-    Ejudge(<ejudge::EjudgeClient as Client>::Config),
+    Ejudge(<ejudge::EjudgeClient as ConfigClient>::Config),
 }
 
 pub trait AsClientConfig {
     fn as_client_config(self) -> ClientConfig;
 }
 
-impl AsClientConfig for <ejudge::EjudgeClient as Client>::Config {
+impl AsClientConfig for <ejudge::EjudgeClient as ConfigClient>::Config {
     fn as_client_config(self) -> ClientConfig {
         ClientConfig::Ejudge(self)
     }
@@ -65,11 +65,14 @@ pub fn get_problem_id(submission: &Submission) -> Result<String> {
 }
 
 #[async_trait]
-pub trait Client: Sized {
-    type Config: serde::Serialize + AsClientConfig;
-
+pub trait SubmitClient {
     // TODO: Replace () with any sutable data associated with submission
     async fn submit(&self, submission: &Submission) -> Result<()>;
+}
+
+#[async_trait]
+pub trait ConfigClient: Sized {
+    type Config: serde::Serialize + AsClientConfig;
 
     /// Builds client with given config.
     fn from_config(config: Self::Config) -> Result<Self>;
@@ -90,3 +93,6 @@ pub trait Client: Sized {
         Ok(())
     }
 }
+
+#[async_trait]
+pub trait Client: SubmitClient + ConfigClient {}

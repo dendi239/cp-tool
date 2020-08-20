@@ -3,7 +3,7 @@ mod ejudge;
 mod errors;
 mod login;
 
-use client::{Client, ClientConfig};
+use client::{ClientConfig, ConfigClient, SubmitClient};
 use errors::Result;
 use login::ContestInfo;
 use structopt::StructOpt;
@@ -35,7 +35,7 @@ async fn read_login(contest_info: &login::ContestInfo) -> Result<ejudge::EjudgeC
 }
 
 /// Finds config in enviroment: scans all parent directories until config'd be found.
-fn from_env() -> Result<ejudge::EjudgeClient> {
+fn from_env() -> Result<AnyClient> {
     let current_direcrtory = std::env::current_dir()?;
     let curr_dir = current_direcrtory.as_path();
     std::iter::successors(Some(curr_dir), |&x| x.parent())

@@ -3,7 +3,7 @@ use crate::errors;
 use crate::login;
 
 use async_trait::async_trait;
-use client::{Client, Submission};
+use client::{ConfigClient, Submission, SubmitClient};
 use errors::Result;
 use login::UserpassCredentials;
 use serde::{Deserialize, Serialize};
@@ -80,7 +80,7 @@ pub async fn read_login(contest_info: &UrlContestIDInfo) -> Result<EjudgeClient>
 }
 
 #[async_trait]
-impl Client for EjudgeClient {
+impl ConfigClient for EjudgeClient {
     type Config = Config;
 
     fn from_config(config: Config) -> Result<EjudgeClient> {
@@ -97,7 +97,10 @@ impl Client for EjudgeClient {
             session_id: self.session_id.clone(),
         }
     }
+}
 
+#[async_trait]
+impl SubmitClient for EjudgeClient {
     async fn submit(&self, submission: &Submission) -> Result<()> {
         let pid = &client::get_problem_id(submission)?;
 
