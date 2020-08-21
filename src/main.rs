@@ -3,7 +3,7 @@ mod ejudge;
 mod errors;
 mod login;
 
-use client::{ClientConfig, ConfigClient, SubmitClient};
+use client::{Config, ConfigClient, SubmitClient};
 use errors::Result;
 use login::ContestInfo;
 use std::path::PathBuf;
@@ -30,9 +30,9 @@ fn from_concrete_config<T: client::Client>(config: T::Config) -> Result<T> {
     T::from_config(config)
 }
 
-fn from_config(config: ClientConfig) -> Result<Box<dyn SubmitClient>> {
+fn from_config(config: Config) -> Result<Box<dyn SubmitClient>> {
     Ok(Box::new(match config {
-        ClientConfig::Ejudge(config) => from_concrete_config::<ejudge::Client>(config),
+        Config::Ejudge(config) => from_concrete_config::<ejudge::Client>(config),
         // TODO: add additional judge systems here
     }?))
 }

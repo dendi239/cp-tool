@@ -7,12 +7,12 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, Serialize)]
-pub enum ClientConfig {
+pub enum Config {
     Ejudge(<ejudge::Client as ConfigClient>::Config),
 }
 
 pub trait AsClientConfig {
-    fn as_client_config(self) -> ClientConfig;
+    fn as_client_config(self) -> self::Config;
 }
 
 #[async_trait]

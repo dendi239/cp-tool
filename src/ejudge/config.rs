@@ -1,4 +1,4 @@
-use crate::client::{AsClientConfig, ClientConfig, ConfigClient};
+use crate::client::{AsClientConfig, Config as ClientConfig, ConfigClient};
 use crate::errors::Result;
 
 use super::client::Client;
