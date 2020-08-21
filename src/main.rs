@@ -26,9 +26,13 @@ async fn save_login(contest_info: &ContestInfo, into_path: &PathBuf) -> Result<(
     }
 }
 
+fn from_concrete_config<T: client::Client>(config: T::Config) -> Result<T> {
+    T::from_config(config)
+}
+
 fn from_config(config: ClientConfig) -> Result<Box<dyn SubmitClient>> {
     Ok(Box::new(match config {
-        ClientConfig::Ejudge(config) => ejudge::EjudgeClient::from_config(config),
+        ClientConfig::Ejudge(config) => from_concrete_config::<ejudge::Client>(config),
         // TODO: add additional judge systems here
     }?))
 }

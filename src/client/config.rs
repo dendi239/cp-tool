@@ -8,17 +8,11 @@ use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum ClientConfig {
-    Ejudge(<ejudge::EjudgeClient as ConfigClient>::Config),
+    Ejudge(<ejudge::Client as ConfigClient>::Config),
 }
 
 pub trait AsClientConfig {
     fn as_client_config(self) -> ClientConfig;
-}
-
-impl AsClientConfig for <ejudge::EjudgeClient as ConfigClient>::Config {
-    fn as_client_config(self) -> ClientConfig {
-        ClientConfig::Ejudge(self)
-    }
 }
 
 #[async_trait]
