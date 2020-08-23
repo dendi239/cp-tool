@@ -3,16 +3,27 @@ mod ejudge;
 mod errors;
 mod login;
 
-use client::{Config, ConfigClient, SubmitClient};
+use client::{ConfigClient, SubmitClient};
 use errors::Result;
-use login::ContestInfo;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use structopt::StructOpt;
+
+#[derive(Debug, Deserialize, Serialize)]
+pub enum Config {
+    Ejudge(ejudge::Config),
+}
+
+#[derive(Debug, StructOpt)]
+pub enum ContestInfo {
+    #[structopt(name = "ejudge")]
+    Ejudge(ejudge::UrlContestIDInfo),
+}
 
 #[derive(Debug, StructOpt)]
 enum Command {
     #[structopt(name = "login", about = "logs you in specified contest.")]
-    Login(login::ContestInfo),
+    Login(ContestInfo),
 
     #[structopt(name = "submit", about = "Submits FILE to given PROBLEM.")]
     Submit(client::Submission),
@@ -26,7 +37,7 @@ async fn save_login(contest_info: &ContestInfo, into_path: &PathBuf) -> Result<(
     }
 }
 
-fn from_concrete_config<T: client::Client>(config: T::Config) -> Result<T> {
+fn from_concrete_config<T: client::Client<Config>>(config: T::Config) -> Result<T> {
     T::from_config(config)
 }
 

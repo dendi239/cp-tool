@@ -1,15 +1,7 @@
-use crate::ejudge;
 use crate::errors;
 
 use errors::Result;
 use std::io::Write;
-use structopt::StructOpt;
-
-#[derive(Debug, StructOpt)]
-pub enum ContestInfo {
-    #[structopt(name = "ejudge")]
-    Ejudge(ejudge::UrlContestIDInfo),
-}
 
 pub struct UserpassCredentials {
     pub username: String,

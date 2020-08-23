@@ -1,23 +1,17 @@
-use crate::ejudge;
 use crate::errors;
 
 use async_trait::async_trait;
 use errors::Result;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::path::PathBuf;
 
-#[derive(Debug, Deserialize, Serialize)]
-pub enum Config {
-    Ejudge(<ejudge::Client as ConfigClient>::Config),
-}
-
-pub trait AsClientConfig {
-    fn as_client_config(self) -> self::Config;
+pub trait AsClientConfig<Config> {
+    fn as_client_config(self) -> Config;
 }
 
 #[async_trait]
-pub trait ConfigClient: Sized {
-    type Config: serde::Serialize + AsClientConfig;
+pub trait ConfigClient<Config: Serialize>: Sized {
+    type Config: serde::Serialize + AsClientConfig<Config>;
 
     /// Builds client with given config.
     fn from_config(config: Self::Config) -> Result<Self>;
