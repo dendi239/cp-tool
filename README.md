@@ -20,6 +20,25 @@ Works with various judge systems
 - [ ] Algotester
 - [ ] DDOTS
 
+## Install
+
+### As crate from [crates.io](https://crates.io)
+
+TODO: Add this library to [crates.io](https://crates.io).
+After it's been published, you may use:
+```sh
+$ cargo install cp-tool
+```
+
+### Build from source
+
+Assuming you already have `rust` alongside `cargo` [installed](https://rustup.rs):
+```sh
+$ git clone https://github.com/dendi239/cp-tool.git
+$ cd cp-tool
+$ cargo install --path .
+```
+
 ## Usage
 
 Basic usage is following: 
@@ -70,25 +89,6 @@ $ mkdir a && cd a && vim source.cpp
 $ cpt submit source.cpp
   #  credentials found by scanning parent directories
   # problem_id guessed by directory name
-```
-
-## Install
-
-### As crate from [crates.io](https://crates.io)
-
-TODO: Add this library to [crates.io](https://crates.io).
-After it's been published, you may use:
-```sh
-$ cargo install cp-tool
-```
-
-### Build from source
-
-Assuming you already have `rust` alongside `cargo` installed.: 
-```sh
-$ git clone https://github.com/dendi239/cp-tool.git
-$ cd cp-tool
-$ cargo install --path .
 ```
 
 ## Contributing
