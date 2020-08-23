@@ -98,4 +98,4 @@ This is my first rust project, so feel free to leave any issue, even about code 
 
 ## Credits
 
-Made with :heart: by [Denys Smirnov](mailto:dendi239+github+cpt@gmail.com)
+Made with :heart: by [Denys Smirnov](mailto:dendi239+github+cpt@gmail.com?subject=Question%20about%20cpt)
