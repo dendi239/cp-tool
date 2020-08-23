@@ -22,6 +22,18 @@ Works with various judge systems
 
 ## Usage
 
+Basic usage is following: 
+```sh
+$ cpt login ejudge --url <YOUR_URL> --contest-id <CONTEST_ID>
+username: awesomeyou
+password: 🔑
+$ mkdir a && cd a
+$ code source.cpp
+$ cpt submit a.cpp
+```
+
+That's it! Note that there's some work under the hood: after login's called, cpt creates file `.cp-tool.config` with some json-based config (there's json to allow you edit it manually). Since that when you call `cpt submit` it scans enviroment to find suitable configuration and uses it to perform actual submitting.
+
 It's quite hard to choose how to store your sources: 
 ```plain
 your-contest-dir
