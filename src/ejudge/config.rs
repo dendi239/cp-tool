@@ -1,5 +1,6 @@
-use crate::client::{AsClientConfig, Config as ClientConfig, ConfigClient};
+use crate::client::{AsClientConfig, ConfigClient};
 use crate::errors::Result;
+use crate::Config as CrateConfig;
 
 use super::client::Client;
 use async_trait::async_trait;
@@ -11,14 +12,14 @@ pub struct Config {
     session_id: String,
 }
 
-impl AsClientConfig for Config {
-    fn as_client_config(self) -> ClientConfig {
-        ClientConfig::Ejudge(self)
+impl AsClientConfig<CrateConfig> for Config {
+    fn as_client_config(self) -> CrateConfig {
+        CrateConfig::Ejudge(self)
     }
 }
 
 #[async_trait]
-impl ConfigClient for Client {
+impl ConfigClient<CrateConfig> for Client {
     type Config = Config;
 
     fn from_config(config: Config) -> Result<Client> {
