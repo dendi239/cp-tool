@@ -24,12 +24,12 @@ Works with various judge systems
 
 Basic usage is following: 
 ```sh
-$ cpt login ejudge --url <YOUR_URL> --contest-id <CONTEST_ID>
+$ cpt login ejudge --url some.ejudge.server.com/cgi-bin/new-client --contest-id <CONTEST_ID>
 username: awesomeyou
 password: 🔑
-$ mkdir a && cd a
+$ mkdir a && cd a && touch source.cpp
 $ code source.cpp
-$ cpt submit a.cpp
+$ cpt submit source.cpp
 ```
 
 That's it! Note that there's some work under the hood: after login's called, cpt creates file `.cp-tool.config` with some json-based config (there's json to allow you edit it manually). Since that when you call `cpt submit` it scans enviroment to find suitable configuration and uses it to perform actual submitting.
@@ -66,7 +66,7 @@ All you need it to call:
 ```sh
 $ cpt login <your judge system goes here>
 # initialize your project structure
-$ mkdir a && cd a && code source.cpp
+$ mkdir a && cd a && vim source.cpp
 $ cpt submit source.cpp
   #  credentials found by scanning parent directories
   # problem_id guessed by directory name
