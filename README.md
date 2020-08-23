@@ -48,7 +48,7 @@ your-contest-dir
     ├── ans1.txt
     └── in1.txt
 ```
-However, `cpt` doesn't make any assumptions about your project sturcture and scans all parent directories in order to find login credentials. 
+However, `cpt` doesn't make any assumptions about your project structure and scans all parent directories to find login credentials. 
 Note that `cpt` isn't supposed to store your credentials on your disk unless it's necessary for all logins.
 All you need it to call: 
 ```sh
@@ -81,7 +81,7 @@ $ cargo install --path .
 
 ## Contributing
 
-Contributing is higly welcomed and recommendent.
+Contributing is highly welcomed and recommended.
 This is my first rust project, so feel free to leave any issue, even about code style, or suggestions to make it better in terms of traits infrastructure.
 
 ## Credits
