@@ -7,30 +7,31 @@ It was inspired by [cf-tool](https://github.com/xalanq/cf-tool), but that one wo
 
 - [x] Stores config in project-related directory
 - [x] Guesses `problem_id` from either filename or directory name
-- Works with various judge systems
-  - [x] ejudge
-  - [ ] CodeForces
-  - [ ] Yandex.Contest
-  - [ ] AtCoder
-  - [ ] TopCoder
-  - [ ] Algotester
-  - [ ] DDOTS
 - [ ] Current contest status
 - [ ] Current standings
 - [ ] Submit response feature
+
+Works with various judge systems
+- [x] ejudge
+- [ ] CodeForces
+- [ ] Yandex.Contest
+- [ ] AtCoder
+- [ ] TopCoder
+- [ ] Algotester
+- [ ] DDOTS
 
 ## Usage
 
 It's quite hard to choose how to store your sources: 
 ```plain
-your-contest
+your-contest-dir
 ├── a.cpp
 ├── b.cpp
 └—— c.py
 
 or
 
-your contest
+your-contest-dir
 ├── a
 │   ├── a.cpp
 │   ├── CMakeLists.txt
@@ -61,9 +62,13 @@ $ cpt submit source.cpp
 
 ## Install
 
-### [crates.io]()
+### As crate from [crates.io](https://crates.io)
 
-TODO: Add this library to [crates.io]().
+TODO: Add this library to [crates.io](https://crates.io).
+After it's been published, you may use:
+```sh
+$ cargo install cp-tool
+```
 
 ### Build from source
 
@@ -79,3 +84,6 @@ $ cargo install --path .
 Contributing is higly welcomed and recommendent.
 This is my first rust project, so feel free to leave any issue, even about code style, or suggestions to make it better in terms of traits infrastructure.
 
+## Credits
+
+Made with :heart: by [Denys Smirnov](mailto:dendi239+github+cpt@gmail.com)
